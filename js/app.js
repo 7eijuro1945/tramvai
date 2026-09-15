@@ -1,6 +1,10 @@
 const KEYS = {
   trolleybus: "vehicle-trolleybus",
   tram: "vehicle-tram",
+  session: {
+    trolleybus: "ticket-session-trolleybus",
+    tram: "ticket-session-tram",
+  },
 };
 
 const LABELS = {
@@ -16,21 +20,22 @@ const DEFAULTS = {
 const TICKET = {
   count: 1,
   number: "244 197",
-  quote: "— залишайтеся людьми і кричіть, що ви живі. Я живий!",
+  quotes: [
+    "— залишайтеся людьми і кричіть, що ви живі. Я живий!",
+    "Життя — цікаве",
+  ],
   validMs: 60 * 60 * 1000,
 };
 
 const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "січня", "лютого", "березня", "квітня", "травня", "червня",
+  "липня", "серпня", "вересня", "жовтня", "листопада", "грудня",
 ];
 
 function formatPurchased(date) {
-  const hours = date.getHours();
+  const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-  const suffix = hours >= 12 ? "PM" : "AM";
-  const hour12 = hours % 12 || 12;
-  return `Purchased ${monthNames[date.getMonth()]} ${date.getDate()} in ${hour12}:${minutes} ${suffix}`;
+  return `Придбано ${date.getDate()} ${monthNames[date.getMonth()]} о ${hours}:${minutes}`;
 }
 
 function formatRemain(ms) {
@@ -60,20 +65,54 @@ function writeVehicle(kind, value) {
   return next;
 }
 
+function readSession(kind) {
+  try {
+    const raw = localStorage.getItem(KEYS.session[kind]);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    const purchasedAt = Number(data.purchasedAt);
+    const expiresAt = Number(data.expiresAt);
+    if (!purchasedAt || !expiresAt) return null;
+    return { purchasedAt, expiresAt };
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(kind, purchasedAt, expiresAt) {
+  localStorage.setItem(
+    KEYS.session[kind],
+    JSON.stringify({ purchasedAt, expiresAt })
+  );
+}
+
+function getSession(kind) {
+  const saved = readSession(kind);
+  if (saved) return saved;
+  const purchasedAt = Date.now();
+  const expiresAt = purchasedAt + TICKET.validMs;
+  writeSession(kind, purchasedAt, expiresAt);
+  return { purchasedAt, expiresAt };
+}
+
 function init() {
   const kind = document.body.dataset.kind || "trolleybus";
   const label = LABELS[kind];
   const otherKind = kind === "tram" ? "trolleybus" : "tram";
-  const purchasedAt = new Date();
-  const expiresAt = purchasedAt.getTime() + TICKET.validMs;
+  const session = getSession(kind);
+  const purchasedAt = new Date(session.purchasedAt);
+  const expiresAt = session.expiresAt;
 
-  document.getElementById("quote").textContent = TICKET.quote;
+  const quoteParts = TICKET.quotes
+    .map((text) => `<span>${text}</span>`)
+    .join('<span class="quote-sep">◆</span>');
+  document.getElementById("quote").innerHTML = `${quoteParts}<span class="quote-sep">◆</span>${quoteParts}`;
   document.getElementById("transport").textContent = label;
   document.getElementById("purchased").textContent = formatPurchased(purchasedAt);
-  document.getElementById("amount").textContent = `${TICKET.count} ticket`;
+  document.getElementById("amount").textContent = `${TICKET.count} квиток`;
   document.getElementById("transport-label").textContent = label;
   document.getElementById("number").innerHTML =
-    `Number: <strong>${TICKET.number}</strong>`;
+    `Номер: <strong>${TICKET.number}</strong>`;
 
   const vehicleInput = document.getElementById("vehicle-input");
   const trolleyField = document.getElementById("trolley-number");
@@ -118,11 +157,13 @@ function init() {
   const tick = () => {
     const remain = expiresAt - Date.now();
     if (remain <= 0) {
-      timer.textContent = "00:00";
-      statusText.textContent = "Ticket expired — ";
+      document.body.classList.add("is-expired");
       status.classList.add("is-expired");
+      statusText.textContent = "😔  Квиток недійсний";
+      timer.textContent = "";
       return;
     }
+    statusText.textContent = "Квиток дійсний — ";
     timer.textContent = formatRemain(remain);
     requestAnimationFrame(() => setTimeout(tick, 250));
   };
@@ -143,19 +184,8 @@ function init() {
     if (event.target === overlay) overlay.classList.remove("is-open");
   });
 
-  const otherPages = {
-    tram: {
-      local: "tram.html",
-      live: "https://e-tramvai-tram.netlify.app/",
-    },
-    trolleybus: {
-      local: "index.html",
-      live: "https://e-tramvai-trolleybus.netlify.app/",
-    },
-  };
-  const otherTicket = otherPages[otherKind];
   document.getElementById("other-ticket").href =
-    location.hostname.includes("netlify.app") ? otherTicket.live : otherTicket.local;
+    otherKind === "tram" ? "tram.html" : "index.html";
   document.getElementById("other-ticket").textContent =
     `Квиток: ${LABELS[otherKind]}`;
 }
