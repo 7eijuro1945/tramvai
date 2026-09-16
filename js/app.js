@@ -1,20 +1,38 @@
+const KINDS = ["trolleybus", "tram", "bus"];
+
+const PAGES = {
+  trolleybus: "index.html",
+  tram: "tram.html",
+  bus: "bus.html",
+};
+
+const FIELD_IDS = {
+  trolleybus: "trolley-number",
+  tram: "tram-number",
+  bus: "bus-number",
+};
+
 const KEYS = {
   trolleybus: "vehicle-trolleybus",
   tram: "vehicle-tram",
+  bus: "vehicle-bus",
   session: {
     trolleybus: "ticket-session-trolleybus",
     tram: "ticket-session-tram",
+    bus: "ticket-session-bus",
   },
 };
 
 const LABELS = {
   trolleybus: "Тролейбус",
   tram: "Трамвай",
+  bus: "Автобус",
 };
 
 const DEFAULTS = {
   trolleybus: "009",
   tram: "001",
+  bus: "101",
 };
 
 const TICKET = {
@@ -109,9 +127,10 @@ function getSession(kind) {
 }
 
 function init() {
-  const kind = document.body.dataset.kind || "trolleybus";
+  const kind = KINDS.includes(document.body.dataset.kind)
+    ? document.body.dataset.kind
+    : "trolleybus";
   const label = LABELS[kind];
-  const otherKind = kind === "tram" ? "trolleybus" : "tram";
 
   let session = getSession(kind);
   let tickTimer = null;
@@ -170,15 +189,15 @@ function init() {
   tick();
 
   const vehicleInput = document.getElementById("vehicle-input");
-  const trolleyField = document.getElementById("trolley-number");
-  const tramField = document.getElementById("tram-number");
+  const fields = Object.fromEntries(
+    KINDS.map((k) => [k, document.getElementById(FIELD_IDS[k])])
+  );
 
   const syncFields = () => {
-    const trolley = readVehicle("trolleybus");
-    const tram = readVehicle("tram");
-    vehicleInput.value = kind === "tram" ? tram : trolley;
-    trolleyField.value = trolley;
-    tramField.value = tram;
+    for (const k of KINDS) {
+      fields[k].value = readVehicle(k);
+    }
+    vehicleInput.value = readVehicle(kind);
   };
 
   syncFields();
@@ -208,17 +227,15 @@ function init() {
     }
   });
 
-  const bindSheetField = (field, fieldKind) => {
+  for (const fieldKind of KINDS) {
+    const field = fields[fieldKind];
     field.addEventListener("input", () => {
       field.value = digitsOnly(field.value);
     });
     field.addEventListener("blur", () => {
       applyVehicleChange(fieldKind, field.value);
     });
-  };
-
-  bindSheetField(trolleyField, "trolleybus");
-  bindSheetField(tramField, "tram");
+  }
 
   const overlay = document.getElementById("overlay");
   document.getElementById("info-btn").addEventListener("click", () => {
@@ -226,18 +243,22 @@ function init() {
     overlay.classList.add("is-open");
   });
   document.getElementById("close-info").addEventListener("click", () => {
-    applyVehicleChange("trolleybus", trolleyField.value);
-    applyVehicleChange("tram", tramField.value);
+    for (const fieldKind of KINDS) {
+      applyVehicleChange(fieldKind, fields[fieldKind].value);
+    }
     overlay.classList.remove("is-open");
   });
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) overlay.classList.remove("is-open");
   });
 
-  document.getElementById("other-ticket").href =
-    otherKind === "tram" ? "tram.html" : "index.html";
-  document.getElementById("other-ticket").textContent =
-    `Квиток: ${LABELS[otherKind]}`;
+  const otherTickets = document.getElementById("other-tickets");
+  otherTickets.innerHTML = KINDS.filter((k) => k !== kind)
+    .map(
+      (k) =>
+        `<a class="sheet-link" href="${PAGES[k]}">Квиток: ${LABELS[k]}</a>`
+    )
+    .join("");
 }
 
 init();

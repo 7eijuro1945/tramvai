@@ -25,7 +25,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p site
-          cp index.html tram.html site/
+          cp index.html tram.html bus.html site/
           cp -r css js assets site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

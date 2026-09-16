@@ -355,6 +355,11 @@ body.is-expired .qr {
   margin-top: 16px;
 }
 
+.sheet-links {
+  display: grid;
+  gap: 8px;
+}
+
 .sheet button,
 .sheet-link {
   width: 100%;
