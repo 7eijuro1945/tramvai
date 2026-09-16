@@ -19,7 +19,6 @@ const DEFAULTS = {
 
 const TICKET = {
   count: 1,
-  number: "244 197",
   quotes: [
     "— залишайтеся людьми і кричіть, що ви живі. Я живий!",
     "Життя — цікаве",
@@ -65,6 +64,12 @@ function writeVehicle(kind, value) {
   return next;
 }
 
+function randomTicketNumber() {
+  const n = Math.floor(100000 + Math.random() * 900000);
+  const s = String(n);
+  return `${s.slice(0, 3)} ${s.slice(3)}`;
+}
+
 function readSession(kind) {
   try {
     const raw = localStorage.getItem(KEYS.session[kind]);
@@ -72,47 +77,97 @@ function readSession(kind) {
     const data = JSON.parse(raw);
     const purchasedAt = Number(data.purchasedAt);
     const expiresAt = Number(data.expiresAt);
-    if (!purchasedAt || !expiresAt) return null;
-    return { purchasedAt, expiresAt };
+    const number = typeof data.number === "string" && data.number.trim()
+      ? data.number.trim()
+      : null;
+    if (!purchasedAt || !expiresAt || !number) return null;
+    return { purchasedAt, expiresAt, number };
   } catch {
     return null;
   }
 }
 
-function writeSession(kind, purchasedAt, expiresAt) {
-  localStorage.setItem(
-    KEYS.session[kind],
-    JSON.stringify({ purchasedAt, expiresAt })
-  );
+function writeSession(kind, session) {
+  localStorage.setItem(KEYS.session[kind], JSON.stringify(session));
+}
+
+function createSession() {
+  const purchasedAt = Date.now();
+  return {
+    purchasedAt,
+    expiresAt: purchasedAt + TICKET.validMs,
+    number: randomTicketNumber(),
+  };
 }
 
 function getSession(kind) {
   const saved = readSession(kind);
   if (saved) return saved;
-  const purchasedAt = Date.now();
-  const expiresAt = purchasedAt + TICKET.validMs;
-  writeSession(kind, purchasedAt, expiresAt);
-  return { purchasedAt, expiresAt };
+  const session = createSession();
+  writeSession(kind, session);
+  return session;
 }
 
 function init() {
   const kind = document.body.dataset.kind || "trolleybus";
   const label = LABELS[kind];
   const otherKind = kind === "tram" ? "trolleybus" : "tram";
-  const session = getSession(kind);
-  const purchasedAt = new Date(session.purchasedAt);
-  const expiresAt = session.expiresAt;
+
+  let session = getSession(kind);
+  let tickTimer = null;
 
   const quoteParts = TICKET.quotes
     .map((text) => `<span>${text}</span>`)
     .join('<span class="quote-sep">◆</span>');
   document.getElementById("quote").innerHTML = `${quoteParts}<span class="quote-sep">◆</span>${quoteParts}`;
   document.getElementById("transport").textContent = label;
-  document.getElementById("purchased").textContent = formatPurchased(purchasedAt);
   document.getElementById("amount").textContent = `${TICKET.count} квиток`;
   document.getElementById("transport-label").textContent = label;
-  document.getElementById("number").innerHTML =
-    `Номер: <strong>${TICKET.number}</strong>`;
+
+  const purchasedEl = document.getElementById("purchased");
+  const numberEl = document.getElementById("number");
+  const timer = document.getElementById("timer");
+  const status = document.getElementById("status");
+  const statusText = document.getElementById("status-text");
+
+  const renderTicket = () => {
+    purchasedEl.textContent = formatPurchased(new Date(session.purchasedAt));
+    numberEl.innerHTML = `Номер: <strong>${session.number}</strong>`;
+    document.body.classList.remove("is-expired");
+    status.classList.remove("is-expired");
+  };
+
+  const stopTick = () => {
+    if (tickTimer != null) {
+      clearTimeout(tickTimer);
+      tickTimer = null;
+    }
+  };
+
+  const tick = () => {
+    stopTick();
+    const remain = session.expiresAt - Date.now();
+    if (remain <= 0) {
+      document.body.classList.add("is-expired");
+      status.classList.add("is-expired");
+      statusText.textContent = "😔  Квиток недійсний";
+      timer.textContent = "";
+      return;
+    }
+    statusText.textContent = "Квиток дійсний — ";
+    timer.textContent = formatRemain(remain);
+    tickTimer = setTimeout(tick, 250);
+  };
+
+  const renewTicket = () => {
+    session = createSession();
+    writeSession(kind, session);
+    renderTicket();
+    tick();
+  };
+
+  renderTicket();
+  tick();
 
   const vehicleInput = document.getElementById("vehicle-input");
   const trolleyField = document.getElementById("trolley-number");
@@ -128,13 +183,29 @@ function init() {
 
   syncFields();
 
+  const applyVehicleChange = (fieldKind, value) => {
+    const prev = readVehicle(fieldKind);
+    const next = writeVehicle(fieldKind, value);
+    syncFields();
+    if (fieldKind === kind && next !== prev) {
+      renewTicket();
+    }
+    return next;
+  };
+
   vehicleInput.addEventListener("input", () => {
     vehicleInput.value = digitsOnly(vehicleInput.value);
   });
 
   vehicleInput.addEventListener("blur", () => {
-    vehicleInput.value = writeVehicle(kind, vehicleInput.value);
-    syncFields();
+    applyVehicleChange(kind, vehicleInput.value);
+  });
+
+  vehicleInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      vehicleInput.blur();
+    }
   });
 
   const bindSheetField = (field, fieldKind) => {
@@ -142,32 +213,12 @@ function init() {
       field.value = digitsOnly(field.value);
     });
     field.addEventListener("blur", () => {
-      field.value = writeVehicle(fieldKind, field.value);
-      syncFields();
+      applyVehicleChange(fieldKind, field.value);
     });
   };
 
   bindSheetField(trolleyField, "trolleybus");
   bindSheetField(tramField, "tram");
-
-  const timer = document.getElementById("timer");
-  const status = document.getElementById("status");
-  const statusText = document.getElementById("status-text");
-
-  const tick = () => {
-    const remain = expiresAt - Date.now();
-    if (remain <= 0) {
-      document.body.classList.add("is-expired");
-      status.classList.add("is-expired");
-      statusText.textContent = "😔  Квиток недійсний";
-      timer.textContent = "";
-      return;
-    }
-    statusText.textContent = "Квиток дійсний — ";
-    timer.textContent = formatRemain(remain);
-    requestAnimationFrame(() => setTimeout(tick, 250));
-  };
-  tick();
 
   const overlay = document.getElementById("overlay");
   document.getElementById("info-btn").addEventListener("click", () => {
@@ -175,9 +226,8 @@ function init() {
     overlay.classList.add("is-open");
   });
   document.getElementById("close-info").addEventListener("click", () => {
-    writeVehicle("trolleybus", trolleyField.value);
-    writeVehicle("tram", tramField.value);
-    syncFields();
+    applyVehicleChange("trolleybus", trolleyField.value);
+    applyVehicleChange("tram", tramField.value);
     overlay.classList.remove("is-open");
   });
   overlay.addEventListener("click", (event) => {
