@@ -48,7 +48,9 @@ body {
   height: 52px;
   border-radius: 50%;
   overflow: hidden;
+  flex-shrink: 0;
   box-shadow: 0 8px 18px rgba(168, 80, 210, 0.28);
+  background: #f2f3f5;
 }
 
 .logo img,
@@ -57,6 +59,7 @@ body {
   height: 100%;
   display: block;
   object-fit: cover;
+  object-position: center;
 }
 
 .info-btn {
