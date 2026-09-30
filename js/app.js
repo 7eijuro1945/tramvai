@@ -126,6 +126,23 @@ function getSession(kind) {
   return session;
 }
 
+function qrPayload(kind, session) {
+  const compact = String(session.number).replace(/\s+/g, "");
+  return `VTK:${kind}:${compact}:${session.purchasedAt}`;
+}
+
+function paintQr(kind, session) {
+  const payload = qrPayload(kind, session);
+  const main = document.getElementById("qr");
+  const badge = document.getElementById("details-qr");
+  if (main) {
+    renderQrCanvas(main, payload, { size: 640, quiet: 2, centerRatio: 0.3, level: "M" });
+  }
+  if (badge) {
+    renderQrBadge(badge, payload, { size: 160, level: "L" });
+  }
+}
+
 function init() {
   const kind = KINDS.includes(document.body.dataset.kind)
     ? document.body.dataset.kind
@@ -148,12 +165,15 @@ function init() {
   const timer = document.getElementById("timer");
   const status = document.getElementById("status");
   const statusText = document.getElementById("status-text");
+  const detailsView = document.getElementById("details");
+  const ticketView = document.getElementById("ticket-view");
 
   const renderTicket = () => {
     purchasedEl.textContent = formatPurchased(new Date(session.purchasedAt));
     numberEl.innerHTML = `Номер: <strong>${session.number}</strong>`;
     document.body.classList.remove("is-expired");
     status.classList.remove("is-expired");
+    paintQr(kind, session);
   };
 
   const stopTick = () => {
@@ -183,6 +203,20 @@ function init() {
     writeSession(kind, session);
     renderTicket();
     tick();
+  };
+
+  const openDetails = () => {
+    detailsView.hidden = false;
+    ticketView.hidden = true;
+    document.body.classList.add("is-details");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#000000");
+  };
+
+  const closeDetails = () => {
+    detailsView.hidden = true;
+    ticketView.hidden = false;
+    document.body.classList.remove("is-details");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#f2f3f5");
   };
 
   renderTicket();
@@ -251,6 +285,13 @@ function init() {
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) overlay.classList.remove("is-open");
   });
+
+  document.getElementById("qr-open").addEventListener("click", openDetails);
+  document.getElementById("open-details").addEventListener("click", () => {
+    overlay.classList.remove("is-open");
+    openDetails();
+  });
+  document.getElementById("details-back").addEventListener("click", closeDetails);
 
   const otherTickets = document.getElementById("other-tickets");
   otherTickets.innerHTML = KINDS.filter((k) => k !== kind)
