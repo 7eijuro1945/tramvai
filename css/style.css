@@ -286,9 +286,8 @@ body.is-details .app {
   background: #fff;
   border-radius: 0;
   object-fit: contain;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: auto;
+  -webkit-optimize-contrast: auto;
 }
 
 .number {
@@ -458,9 +457,7 @@ body.is-details .app {
   background: #fff;
   border-radius: 0;
   object-fit: contain;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: auto;
 }
 
 .scan-number {
