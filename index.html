@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body data-kind="trolleybus">
   <main class="app">
@@ -48,10 +48,7 @@
 
         <div class="ticket-bottom">
           <button type="button" class="qr-wrap" id="qr-open" aria-label="Показати QR-код">
-            <canvas class="qr" id="qr" width="640" height="640"></canvas>
-            <span class="qr-mark" aria-hidden="true">
-              <img src="assets/qr-cat.svg" alt="">
-            </span>
+            <img class="qr" src="assets/qr.png?v=5" alt="QR-код квитка" draggable="false">
           </button>
           <p class="number" id="number">Номер: <strong>244 197</strong></p>
         </div>
@@ -68,10 +65,7 @@
       <p class="scan-title" id="scan-title">Тролейбус № 009</p>
       <hr class="scan-rule" aria-hidden="true">
       <div class="scan-frame">
-        <canvas id="scan-qr" width="720" height="720"></canvas>
-        <span class="scan-mark" aria-hidden="true">
-          <img src="assets/qr-cat.svg" alt="">
-        </span>
+        <img id="scan-qr" class="scan-qr" src="assets/qr.png?v=5" alt="QR-код квитка" draggable="false">
       </div>
       <p class="scan-number" id="scan-number">Номер: <strong>244 197</strong></p>
     </section>
@@ -93,7 +87,7 @@
             <p class="details-value">КП «ВІННИЦЬКА ТРАНСПОРТНА КОМПАНІЯ»</p>
           </div>
           <div class="details-qr-badge" aria-hidden="true">
-            <canvas id="details-qr" width="160" height="160"></canvas>
+            <img id="details-qr" src="assets/qr.png?v=5" alt="">
           </div>
         </div>
 
@@ -169,8 +163,6 @@
     </div>
   </div>
 
-  <script src="js/qrcode.min.js?v=4"></script>
-  <script src="js/qr-render.js?v=4"></script>
-  <script src="js/app.js?v=4"></script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>

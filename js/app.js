@@ -126,31 +126,6 @@ function getSession(kind) {
   return session;
 }
 
-function qrPayload(kind, session) {
-  const compact = String(session.number).replace(/\s+/g, "");
-  return `VTK:${kind}:${compact}:${session.purchasedAt}`;
-}
-
-function paintQr(kind, session) {
-  const payload = qrPayload(kind, session);
-  const main = document.getElementById("qr");
-  const badge = document.getElementById("details-qr");
-  const scan = document.getElementById("scan-qr");
-  try {
-    if (main) {
-      renderQrCanvas(main, payload, { size: 640, quiet: 2, centerRatio: 0.26, level: "M" });
-    }
-    if (badge) {
-      renderQrCanvas(badge, payload, { size: 160, quiet: 1, centerRatio: 0, level: "L" });
-    }
-    if (scan) {
-      renderQrCanvas(scan, payload, { size: 720, quiet: 2, centerRatio: 0.26, level: "M" });
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 function init() {
   const kind = KINDS.includes(document.body.dataset.kind)
     ? document.body.dataset.kind
@@ -198,7 +173,6 @@ function init() {
     scanTitle.textContent = `${label} № ${readVehicle(kind)}`;
     document.body.classList.remove("is-expired");
     status.classList.remove("is-expired");
-    paintQr(kind, session);
   };
 
   const stopTick = () => {
@@ -247,7 +221,6 @@ function init() {
     hideViews();
     scanTitle.textContent = `${label} № ${readVehicle(kind)}`;
     scanNumber.innerHTML = `Номер: <strong>${session.number}</strong>`;
-    paintQr(kind, session);
     scanView.hidden = false;
     document.body.classList.add("is-scan");
     setTheme("#121212");
