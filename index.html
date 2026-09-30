@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body data-kind="trolleybus">
   <main class="app">
@@ -48,7 +48,7 @@
 
         <div class="ticket-bottom">
           <button type="button" class="qr-wrap" id="qr-open" aria-label="Показати QR-код">
-            <img class="qr" id="qr" alt="QR-код квитка" decoding="async">
+            <canvas class="qr" id="qr" width="640" height="640"></canvas>
             <span class="qr-mark" aria-hidden="true">
               <img src="assets/qr-cat.svg" alt="">
             </span>
@@ -68,7 +68,7 @@
       <p class="scan-title" id="scan-title">Тролейбус № 009</p>
       <hr class="scan-rule" aria-hidden="true">
       <div class="scan-frame">
-        <img id="scan-qr" alt="QR-код квитка" decoding="async">
+        <canvas id="scan-qr" width="720" height="720"></canvas>
         <span class="scan-mark" aria-hidden="true">
           <img src="assets/qr-cat.svg" alt="">
         </span>
@@ -93,7 +93,7 @@
             <p class="details-value">КП «ВІННИЦЬКА ТРАНСПОРТНА КОМПАНІЯ»</p>
           </div>
           <div class="details-qr-badge" aria-hidden="true">
-            <img id="details-qr" alt="">
+            <canvas id="details-qr" width="160" height="160"></canvas>
           </div>
         </div>
 
@@ -169,8 +169,8 @@
     </div>
   </div>
 
-  <script src="js/qrcode.min.js"></script>
-  <script src="js/qr-render.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/qrcode.min.js?v=4"></script>
+  <script src="js/qr-render.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

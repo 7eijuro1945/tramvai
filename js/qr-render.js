@@ -10,78 +10,47 @@
     return qr;
   }
 
-  function toSvg(qr, options = {}) {
-    const cell = options.cellSize || 12;
+  function paint(canvas, text, options) {
+    if (!canvas) return null;
+    const size = options.size || 640;
     const quiet = options.quiet == null ? 2 : options.quiet;
-    const invert = Boolean(options.invert);
-    const dark = invert ? "#f5f5f7" : "#111111";
-    const light = invert ? "#111111" : "#ffffff";
+    const level = options.level || "M";
+    const dark = "#111111";
+    const light = "#ffffff";
+    const qr = makeQr(text, level);
     const count = qr.getModuleCount();
-    const size = (count + quiet * 2) * cell;
-    const parts = [
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" shape-rendering="crispEdges">`,
-      `<rect width="100%" height="100%" fill="${light}"/>`,
-    ];
+    const cells = count + quiet * 2;
+    const cell = size / cells;
+
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = light;
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = dark;
     for (let row = 0; row < count; row += 1) {
       for (let col = 0; col < count; col += 1) {
         if (!qr.isDark(row, col)) continue;
-        parts.push(
-          `<rect x="${(col + quiet) * cell}" y="${(row + quiet) * cell}" width="${cell}" height="${cell}" fill="${dark}"/>`
-        );
+        const x = Math.floor((col + quiet) * cell);
+        const y = Math.floor((row + quiet) * cell);
+        const w = Math.ceil((col + quiet + 1) * cell) - x;
+        const h = Math.ceil((row + quiet + 1) * cell) - y;
+        ctx.fillRect(x, y, w, h);
       }
     }
-    parts.push("</svg>");
-    return parts.join("");
+
+    const hole = size * (options.centerRatio == null ? 0.26 : options.centerRatio);
+    if (hole > 0) {
+      ctx.fillStyle = light;
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, hole / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    return canvas;
   }
 
-  function toDataUri(svg) {
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-  }
-
-  function applyQr(target, text, options = {}) {
-    if (!target) return null;
-    const qr = makeQr(text, options.level);
-    const uri = toDataUri(toSvg(qr, options));
-
-    if (target.tagName === "IMG") {
-      target.alt = target.alt || "QR-код";
-      target.src = uri;
-      return target;
-    }
-
-    if (target.tagName === "CANVAS") {
-      const size = options.size || 640;
-      const img = new Image();
-      img.onload = () => {
-        target.width = size;
-        target.height = size;
-        const ctx = target.getContext("2d");
-        ctx.imageSmoothingEnabled = false;
-        ctx.fillStyle = options.invert ? "#111111" : "#ffffff";
-        ctx.fillRect(0, 0, size, size);
-        ctx.drawImage(img, 0, 0, size, size);
-      };
-      img.src = uri;
-      return target;
-    }
-
-    target.innerHTML = toSvg(qr, options);
-    const el = target.firstElementChild;
-    if (el) {
-      el.style.width = "100%";
-      el.style.height = "auto";
-      el.style.display = "block";
-    }
-    return target;
-  }
-
-  global.renderQrCanvas = function (el, text, options) {
-    return applyQr(el, text, options);
-  };
-  global.renderQrBadge = function (el, text, options) {
-    return applyQr(el, text, options);
-  };
-  global.renderQrImage = function (el, text, options) {
-    return applyQr(el, text, options);
-  };
+  global.renderQrCanvas = paint;
+  global.renderQrBadge = paint;
+  global.renderQrImage = paint;
 })(window);

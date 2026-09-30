@@ -455,7 +455,7 @@ body.is-details .app {
 
 .scan-frame {
   position: relative;
-  width: min(320px, 86vw);
+  width: min(300px, 82vw);
   aspect-ratio: 1;
   border: 0;
   border-radius: 22px;
@@ -467,7 +467,7 @@ body.is-details .app {
   box-shadow: 0 12px 32px rgba(17, 24, 39, 0.18);
 }
 
-.scan-frame img#scan-qr {
+.scan-frame canvas {
   width: 100%;
   height: auto;
   aspect-ratio: 1;
@@ -637,13 +637,12 @@ body.is-scan .app {
   overflow: hidden;
 }
 
-.details-qr-badge img {
+.details-qr-badge canvas {
   width: 100%;
   height: 100%;
   display: block;
   border-radius: 10px;
   background: #fff;
-  object-fit: cover;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }

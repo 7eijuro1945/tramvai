@@ -138,13 +138,13 @@ function paintQr(kind, session) {
   const scan = document.getElementById("scan-qr");
   try {
     if (main) {
-      renderQrImage(main, payload, { cellSize: 12, quiet: 2, level: "M" });
+      renderQrCanvas(main, payload, { size: 640, quiet: 2, centerRatio: 0.26, level: "M" });
     }
     if (badge) {
-      renderQrImage(badge, payload, { cellSize: 6, quiet: 1, level: "L" });
+      renderQrCanvas(badge, payload, { size: 160, quiet: 1, centerRatio: 0, level: "L" });
     }
     if (scan) {
-      renderQrImage(scan, payload, { cellSize: 12, quiet: 2, level: "M" });
+      renderQrCanvas(scan, payload, { size: 720, quiet: 2, centerRatio: 0.26, level: "M" });
     }
   } catch (error) {
     console.error(error);
