@@ -135,11 +135,25 @@ function paintQr(kind, session) {
   const payload = qrPayload(kind, session);
   const main = document.getElementById("qr");
   const badge = document.getElementById("details-qr");
-  if (main) {
-    renderQrCanvas(main, payload, { size: 640, quiet: 2, centerRatio: 0.3, level: "M" });
-  }
-  if (badge) {
-    renderQrBadge(badge, payload, { size: 160, level: "L" });
+  const scan = document.getElementById("scan-qr");
+  try {
+    if (main) {
+      renderQrCanvas(main, payload, { size: 640, quiet: 2, centerRatio: 0.3, level: "M" });
+    }
+    if (badge) {
+      renderQrBadge(badge, payload, { size: 160, level: "L" });
+    }
+    if (scan) {
+      renderQrCanvas(scan, payload, {
+        size: 720,
+        quiet: 2,
+        centerRatio: 0.28,
+        level: "M",
+        invert: true,
+      });
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -166,11 +180,28 @@ function init() {
   const status = document.getElementById("status");
   const statusText = document.getElementById("status-text");
   const detailsView = document.getElementById("details");
+  const scanView = document.getElementById("scan");
   const ticketView = document.getElementById("ticket-view");
+  const scanTitle = document.getElementById("scan-title");
+  const scanNumber = document.getElementById("scan-number");
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+  const setTheme = (color) => {
+    themeMeta?.setAttribute("content", color);
+  };
+
+  const hideViews = () => {
+    detailsView.hidden = true;
+    scanView.hidden = true;
+    ticketView.hidden = true;
+    document.body.classList.remove("is-details", "is-scan");
+  };
 
   const renderTicket = () => {
     purchasedEl.textContent = formatPurchased(new Date(session.purchasedAt));
     numberEl.innerHTML = `Номер: <strong>${session.number}</strong>`;
+    scanNumber.innerHTML = `Номер: <strong>${session.number}</strong>`;
+    scanTitle.textContent = `${label} № ${readVehicle(kind)}`;
     document.body.classList.remove("is-expired");
     status.classList.remove("is-expired");
     paintQr(kind, session);
@@ -205,18 +236,31 @@ function init() {
     tick();
   };
 
+  const showTicket = () => {
+    hideViews();
+    ticketView.hidden = false;
+    setTheme("#f2f3f5");
+  };
+
   const openDetails = () => {
+    hideViews();
     detailsView.hidden = false;
-    ticketView.hidden = true;
     document.body.classList.add("is-details");
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#000000");
+    setTheme("#000000");
+  };
+
+  const openScan = () => {
+    hideViews();
+    scanTitle.textContent = `${label} № ${readVehicle(kind)}`;
+    scanNumber.innerHTML = `Номер: <strong>${session.number}</strong>`;
+    paintQr(kind, session);
+    scanView.hidden = false;
+    document.body.classList.add("is-scan");
+    setTheme("#121212");
   };
 
   const closeDetails = () => {
-    detailsView.hidden = true;
-    ticketView.hidden = false;
-    document.body.classList.remove("is-details");
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#f2f3f5");
+    showTicket();
   };
 
   renderTicket();
@@ -232,6 +276,7 @@ function init() {
       fields[k].value = readVehicle(k);
     }
     vehicleInput.value = readVehicle(kind);
+    scanTitle.textContent = `${label} № ${readVehicle(kind)}`;
   };
 
   syncFields();
@@ -286,12 +331,16 @@ function init() {
     if (event.target === overlay) overlay.classList.remove("is-open");
   });
 
-  document.getElementById("qr-open").addEventListener("click", openDetails);
+  document.getElementById("qr-open").addEventListener("click", openScan);
   document.getElementById("open-details").addEventListener("click", () => {
     overlay.classList.remove("is-open");
     openDetails();
   });
   document.getElementById("details-back").addEventListener("click", closeDetails);
+  document.getElementById("scan-back").addEventListener("click", showTicket);
+  scanView.addEventListener("click", (event) => {
+    if (event.target === scanView) showTicket();
+  });
 
   const otherTickets = document.getElementById("other-tickets");
   otherTickets.innerHTML = KINDS.filter((k) => k !== kind)

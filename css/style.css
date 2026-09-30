@@ -421,6 +421,125 @@ body.is-details .app {
   color: #222;
 }
 
+.scan {
+  color: #cfcfcf;
+  min-height: calc(100svh - 36px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  text-align: center;
+  padding: 12px 8px 24px;
+}
+
+.scan[hidden] {
+  display: none !important;
+}
+
+.scan-title {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #c8c8c8;
+}
+
+.scan-rule {
+  width: min(320px, 86vw);
+  border: 0;
+  border-top: 1.5px dotted rgba(255, 255, 255, 0.28);
+  margin: -8px 0 0;
+}
+
+.scan-frame {
+  position: relative;
+  width: min(320px, 86vw);
+  aspect-ratio: 3 / 4.15;
+  border: 1.5px solid rgba(255, 255, 255, 0.38);
+  border-radius: 28px;
+  background: #1c1c1e;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.scan-frame canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  display: block;
+  border-radius: 8px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.scan-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22%;
+  height: auto;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #1c1c1e;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  box-shadow: 0 0 0 10px #1c1c1e;
+}
+
+.scan-mark img {
+  width: 78%;
+  height: 78%;
+  display: block;
+}
+
+.scan-number {
+  font-size: 16px;
+  font-weight: 500;
+  color: #bdbdbd;
+  letter-spacing: -0.01em;
+}
+
+.scan-number strong {
+  font-weight: 600;
+  color: #d8d8d8;
+}
+
+.scan-close {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #cfcfcf;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  appearance: none;
+}
+
+.scan-close svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+body.is-scan {
+  background: #121212;
+}
+
+body.is-scan .app {
+  position: relative;
+  background: #121212;
+  padding-top: 8px;
+}
+
 .details {
   color: #fff;
   min-height: calc(100svh - 54px);
@@ -596,6 +715,10 @@ body.is-details .app {
     background: #0a0a0a;
   }
 
+  body.is-scan {
+    background: #0a0a0a;
+  }
+
   .app {
     min-height: calc(100svh - 48px);
     margin-top: 24px;
@@ -606,6 +729,11 @@ body.is-details .app {
 
   body.is-details .app {
     background: #000;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+
+  body.is-scan .app {
+    background: #121212;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   }
 }

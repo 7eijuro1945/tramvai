@@ -47,7 +47,7 @@
         </div>
 
         <div class="ticket-bottom">
-          <button type="button" class="qr-wrap" id="qr-open" aria-label="Відкрити деталі квитка">
+          <button type="button" class="qr-wrap" id="qr-open" aria-label="Показати QR-код">
             <canvas class="qr" id="qr" width="640" height="640"></canvas>
             <span class="qr-mark" aria-hidden="true">
               <img src="assets/qr-cat.svg" alt="">
@@ -58,6 +58,23 @@
         <div class="scallop" aria-hidden="true"></div>
       </article>
     </div>
+
+    <section class="scan" id="scan" hidden>
+      <button type="button" class="scan-close" id="scan-back" aria-label="Назад">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 5.5 8.5 12 15 18.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <p class="scan-title" id="scan-title">Трамвай № 001</p>
+      <hr class="scan-rule" aria-hidden="true">
+      <div class="scan-frame">
+        <canvas id="scan-qr" width="720" height="720"></canvas>
+        <span class="scan-mark" aria-hidden="true">
+          <img src="assets/qr-cat.svg" alt="">
+        </span>
+      </div>
+      <p class="scan-number" id="scan-number">Номер: <strong>244 197</strong></p>
+    </section>
 
     <section class="details" id="details" hidden>
       <div class="details-top">
