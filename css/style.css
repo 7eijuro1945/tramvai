@@ -271,6 +271,7 @@ body.is-details .app {
   cursor: pointer;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
 }
 
 .qr-wrap:focus-visible {
@@ -283,9 +284,11 @@ body.is-details .app {
   aspect-ratio: 1;
   display: block;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 0;
   object-fit: contain;
-  image-rendering: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
 }
 
 .number {
@@ -453,8 +456,11 @@ body.is-details .app {
   aspect-ratio: 1;
   display: block;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 0;
   object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
 }
 
 .scan-number {
