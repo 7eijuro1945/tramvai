@@ -282,6 +282,8 @@ body.is-details .app {
   width: 100%;
   aspect-ratio: 1;
   display: block;
+  background: #fff;
+  border-radius: 8px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
@@ -454,22 +456,23 @@ body.is-details .app {
 .scan-frame {
   position: relative;
   width: min(320px, 86vw);
-  aspect-ratio: 3 / 4.15;
-  border: 1.5px solid rgba(255, 255, 255, 0.38);
-  border-radius: 28px;
-  background: #1c1c1e;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 22px;
+  background: #fff;
   overflow: hidden;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: 12px;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.18);
 }
 
-.scan-frame canvas {
+.scan-frame img#scan-qr {
   width: 100%;
   height: auto;
   aspect-ratio: 1;
   display: block;
-  border-radius: 8px;
+  background: #fff;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
@@ -483,11 +486,11 @@ body.is-details .app {
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #1c1c1e;
+  background: #fff;
   display: grid;
   place-items: center;
   pointer-events: none;
-  box-shadow: 0 0 0 10px #1c1c1e;
+  box-shadow: 0 0 0 8px #fff;
 }
 
 .scan-mark img {
@@ -631,14 +634,16 @@ body.is-scan .app {
   background: linear-gradient(160deg, #b24bff 0%, #ff4fa3 55%, #ff6b7a 100%);
   box-shadow: 0 8px 18px rgba(178, 75, 255, 0.28);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
-.details-qr-badge canvas {
+.details-qr-badge img {
   width: 100%;
   height: 100%;
   display: block;
   border-radius: 10px;
   background: #fff;
+  object-fit: cover;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }

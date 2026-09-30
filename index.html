@@ -48,7 +48,7 @@
 
         <div class="ticket-bottom">
           <button type="button" class="qr-wrap" id="qr-open" aria-label="Показати QR-код">
-            <canvas class="qr" id="qr" width="640" height="640"></canvas>
+            <img class="qr" id="qr" alt="QR-код квитка" decoding="async">
             <span class="qr-mark" aria-hidden="true">
               <img src="assets/qr-cat.svg" alt="">
             </span>
@@ -68,7 +68,7 @@
       <p class="scan-title" id="scan-title">Тролейбус № 009</p>
       <hr class="scan-rule" aria-hidden="true">
       <div class="scan-frame">
-        <canvas id="scan-qr" width="720" height="720"></canvas>
+        <img id="scan-qr" alt="QR-код квитка" decoding="async">
         <span class="scan-mark" aria-hidden="true">
           <img src="assets/qr-cat.svg" alt="">
         </span>
@@ -93,7 +93,7 @@
             <p class="details-value">КП «ВІННИЦЬКА ТРАНСПОРТНА КОМПАНІЯ»</p>
           </div>
           <div class="details-qr-badge" aria-hidden="true">
-            <canvas id="details-qr" width="160" height="160"></canvas>
+            <img id="details-qr" alt="">
           </div>
         </div>
 
